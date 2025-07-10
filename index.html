@@ -1,39 +1,53 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@280" rel="stylesheet" />
+
     <link rel="stylesheet" href="style.css">
     <title>DOM 03</title>
-    
+
 </head>
+
 <body>
-    <h1>Gerenciamento de Tarefas</h1>
-    <div>
-        <label for="descricaoTarefa">Descrição da Tarefa:</label>
-        <input type="text" id="descricaoTarefa" placeholder="Ex: Concluir relatório">
-        <input type="text" id="filtro" placeholder="Filtrar por descrição">
+    <header class="topo">
+        <h1>Gerenciador de Tarefas</h1>
+        <img class="topo-imagem" src="imagemTask.png" alt="ilustração tarefas">
 
-    </div>
-    <button id="adicionarBtn">Adicionar Tarefa</button>
-    <table id="tabelaTarefas">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Descrição</th>
-        <th>Data de Início</th>
-        <th>Data de Conclusão</th>
-        <th>Ações</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- Linhas da tabela serão adicionadas aqui -->
-    </tbody>
-    </table>
-    </table>
+    </header>
 
-    <p id="resumoTarefas">Você ainda não adicionou nenhuma tarefa.</p>
+    <main class="conteudo">
+        <div>
+            <label for="descricaoTarefa">Nova Tarefa:</label>
+            <input type="text" id="descricaoTarefa" placeholder="Ex: Concluir relatório">
+        </div>
 
- <script src="script.js"></script>
+        <div class="acao-tarefa">
+            <button id="adicionarBtn">Adicionar Tarefa</button>
+            <input type="text" class="search-input" id="filtro" placeholder="Filtrar por descrição">
+        </div>
+
+        <table id="tabelaTarefas">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Descrição</th>
+                    <th>Data de Início</th>
+                    <th>Data de Conclusão</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Linhas da tabela serão adicionadas aqui -->
+            </tbody>
+        </table>
+        </table>
+
+        <p id="resumoTarefas">Você ainda não adicionou nenhuma tarefa.</p>
+    </main>
+    <script src="script.js"></script>
 </body>
+
 </html>

@@ -1,76 +1,164 @@
 body {
     font-family: Arial, sans-serif;
-
     margin: 20px;
+    background-color: #FAF7F4;
 }
+
+.topo {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 0.8px solid #81818191;
+    margin-bottom: 40px;
+    position: relative
+
+}
+
+.topo-imagem {
+    height: 170px;
+    position: absolute;
+    top: -20%;
+    left: 80%;
+}
+
+/* Telas menores que 600px */
+@media (max-width: 600px) {
+    .topo-imagem {
+        height: 80px;
+        left: 80%;
+        transform: translatey(107%); /* Centraliza horizontalmente */
+    }
+}
+
 h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 40px;
+    color: #8B7BDB;
+    margin-bottom: 4px;
+    margin-top: 40px;
 }
+
+/* Para telas menores que 600px */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 28px;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+}
+
 div {
     margin-bottom: 10px;
 }
+
+label {
+    color: #FE7559;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.acao-tarefa {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#filtro {
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 10px 10px 35px;
+    background: #FFB55C url('https://fonts.gstatic.com/s/i/materialiconsoutlined/search/v17/24px.svg') no-repeat 10px center;
+    background-size: 20px 20px;
+    height: 42px;
+    box-sizing: border-box;
+    flex: 1;
+}
+
 input {
     padding: 10px;
     font-size: 16px;
-    width: calc(100% - 22px);
+    width: 100%;
     box-sizing: border-box;
 }
+
 button {
-    padding: 10px 20px;
+    padding: 10px;
     font-size: 16px;
-    background-color: #007BFF;
+    font-weight: bold;
+    background-color: #FE7559;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
 }
+
 button:hover {
-    background-color: #0056b3;
+    background-color: #4b5c6e;
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
-th, td {
+
+th,
+td {
     padding: 10px;
-    border: 1px solid #ddd;
+    border: none;
+    border-bottom: 1px solid #ddd;
     text-align: left;
 
 }
+
 th {
     background-color: #f4f4f4;
 }
-button.concluirBtn {
-    padding: 5px 10px;
-    font-size: 14px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
+
+/* Cor do ícone de concluir */
+.concluirBtn {
+    fill: 0;
+    font-size: 24px;
+    margin-right: 10px;
     cursor: pointer;
-    margin-right: 5px;
+    text-shadow: 0 0 0 #8E7FDC;
+    color: transparent;
+    transition: stroke 0.3s;
 }
-button.concluirBtn:hover {
-    background-color: #218838;
+
+.concluirBtn:hover {
+    color: #6d5fc4;
 }
-button.excluirBtn {
-    padding: 5px 10px;
-    font-size: 14px;
-    background-color: #FF4136;
-    color: white;
-    border: none;
-    border-radius: 4px;
+
+.excluirBtn {
+    font-size: 24px;
+    margin-right: 10px;
     cursor: pointer;
+    color: #FFB55C;
+    transition: color 0.3s;
 }
-button.excluirBtn:hover {
-    background-color: #E00000;
+
+.excluirBtn:hover {
+    color: #fd0800;
+}
+
+/* Cor da lupa */
+.filtro-container .material-symbols-outlined {
+    margin-right: 8px;
+    font-size: 20px;
+    color: white;
 }
 
 /*Plus 4.E*/
 .concluida {
-  background-color: #d2ffd2; 
+    background-color: #d2ffd2;
+}
+
+#resumoTarefas {
+    color: #2d1d80;
+    text-align: center;
 
 }
