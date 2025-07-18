@@ -1,0 +1,27 @@
+{
+  "postagens": [
+    {
+      "id": 1,
+      "titulo": "A Importância da Educação",
+      "conteudo": "A educação é a base para uma sociedade mais justa e equitativa. Ela promove o desenvolvimento individual e coletivo, permitindo que pessoas realizem seu potencial. Investir em educação é investir no futuro de todos nós.",
+      "data": "2023-01-18T03:00:00.000Z",
+      "curtidas": 10,
+      "comentarios": []
+    },
+    {
+      "id": 2,
+      "titulo": "Gestão de Resíduos",
+      "conteudo": "A importancia do descarte correto ",
+      "data": "2025-07-18T22:53:14.952Z",
+      "curtidas": 0,
+      "comentarios": [
+        {
+          "autor": "lina ",
+          "texto": "concordo",
+          "data": "2025-07-18T22:53:50.836Z"
+        }
+      ]
+    }
+  ],
+  "nextId": 3
+}
