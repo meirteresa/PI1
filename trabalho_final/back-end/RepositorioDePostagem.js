@@ -22,7 +22,7 @@ class RepositorioDePostagens {
                 this.postagens = dadosParseados.postagens.map((p) => {
                     const postagem = new Postagem_1.Postagem(p.id, p.titulo, p.conteudo, new Date(p.data), p.curtidas);
                     p.comentarios.forEach((c) => {
-                        postagem.adicionarComentario(c.autor, c.texto);
+                        postagem.adicionarComentario(c.autor, c.texto, new Date(c.data));
                     });
                     return postagem;
                 });

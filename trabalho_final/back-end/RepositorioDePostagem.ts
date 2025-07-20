@@ -27,7 +27,7 @@ export class RepositorioDePostagens {
                     );
                     
                     p.comentarios.forEach((c: any) => {
-                        postagem.adicionarComentario(c.autor, c.texto);
+                        postagem.adicionarComentario(c.autor, c.texto, new Date(c.data));
                     });
                     
                     return postagem;

@@ -25,11 +25,12 @@ async function listarPostagens() {
         const response = await fetch(apiUrl);
         const postagens: Postagem[] = await response.json();
         const postagensElement = getById('postagens');
-        
+
         if (postagensElement) {
             postagensElement.innerHTML = '';
             postagens.forEach(postagem => {
                 const article = document.createElement('article');
+                article.style.position = 'relative';
 
                 // Cria elementos da postagem
                 const titulo = document.createElement('h2');
@@ -54,14 +55,14 @@ async function listarPostagens() {
                 const botaoComentarios = document.createElement('button');
                 botaoComentarios.textContent = 'Mostrar Comentários';
                 botaoComentarios.style.marginLeft = '10px';
-                
+
                 let comentariosVisiveis = false;
                 botaoComentarios.addEventListener('click', () => {
                     comentariosVisiveis = !comentariosVisiveis;
-                    botaoComentarios.textContent = comentariosVisiveis 
-                        ? 'Ocultar Comentários' 
+                    botaoComentarios.textContent = comentariosVisiveis
+                        ? 'Ocultar Comentários'
                         : 'Mostrar Comentários';
-                    
+
                     const comentariosContainer = article.querySelector('.comentarios');
                     if (comentariosVisiveis) {
                         if (!comentariosContainer) {
@@ -72,6 +73,56 @@ async function listarPostagens() {
                     }
                 });
 
+                // ========== MENU KEBAB ========== questão 3
+                const menuContainer = document.createElement('div');
+                menuContainer.className = 'kebab-menu-container';
+
+                const botaoMenu = document.createElement('button');
+                botaoMenu.className = 'kebab-button';
+                botaoMenu.textContent = '⋮';
+
+                const menuDropdown = document.createElement('div');
+                menuDropdown.className = 'kebab-dropdown';
+
+                const botaoExcluir = document.createElement('button');
+                botaoExcluir.textContent = 'Excluir';
+
+                botaoExcluir.addEventListener('click', async () => {
+                    const confirmar = window.confirm('Tem certeza que deseja excluir esta postagem?');
+                    if (confirmar) {
+                        try {
+                            const response = await fetch(`${apiUrl}/${postagem.id}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (response.ok) {
+                                listarPostagens(); // Recarrega a lista
+                            } else {
+                                const erro = await response.json();
+                                alert('Erro ao excluir: ' + erro.message);
+                            }
+                        } catch (error) {
+                            console.error('Erro ao excluir:', error);
+                        }
+                    }
+                });
+
+                botaoMenu.addEventListener('click', () => {
+                    menuDropdown.style.display = menuDropdown.style.display === 'none' ? 'block' : 'none';
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!menuContainer.contains(e.target as Node)) {
+                        menuDropdown.style.display = 'none';
+                    }
+                });
+
+                menuDropdown.appendChild(botaoExcluir);
+                menuContainer.appendChild(botaoMenu);
+                menuContainer.appendChild(menuDropdown);
+                // ========== FIM MENU KEBAB ==========
+
+
                 // Adiciona elementos ao artigo
                 article.appendChild(titulo);
                 article.appendChild(conteudo);
@@ -79,7 +130,8 @@ async function listarPostagens() {
                 article.appendChild(curtidas);
                 article.appendChild(botaoCurtir);
                 article.appendChild(botaoComentarios);
-                
+                article.appendChild(menuContainer);
+
                 postagensElement.appendChild(article);
             });
         }
@@ -139,14 +191,17 @@ async function exibirComentarios(postagemId: number, articleElement: HTMLElement
     try {
         const response = await fetch(`${apiUrl}/${postagemId}/comentarios`);
         const comentarios: Comentario[] = await response.json();
-        
+
+        // Ordena por data decrescente (mais recente primeiro) - questao 4
+        comentarios.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+
         const comentariosContainer = document.createElement('div');
         comentariosContainer.className = 'comentarios';
-        
+
         const tituloComentarios = document.createElement('h3');
         tituloComentarios.textContent = 'Comentários';
         comentariosContainer.appendChild(tituloComentarios);
-        
+
         if (comentarios.length === 0) {
             const semComentarios = document.createElement('p');
             semComentarios.textContent = 'Nenhum comentário ainda. Seja o primeiro!';
@@ -155,45 +210,45 @@ async function exibirComentarios(postagemId: number, articleElement: HTMLElement
             comentarios.forEach(comentario => {
                 const comentarioElement = document.createElement('div');
                 comentarioElement.className = 'comentario';
-                
+
                 const autor = document.createElement('strong');
                 autor.textContent = comentario.autor;
-                
+
                 const texto = document.createElement('p');
                 texto.textContent = comentario.texto;
-                
+
                 const data = document.createElement('small');
                 data.textContent = new Date(comentario.data).toLocaleString();
-                
+
                 comentarioElement.appendChild(autor);
                 comentarioElement.appendChild(texto);
                 comentarioElement.appendChild(data);
                 comentariosContainer.appendChild(comentarioElement);
             });
         }
-        
+
         // Formulário para novo comentário
         const formComentario = document.createElement('form');
         formComentario.className = 'form-comentario';
-        
+
         const inputAutor = document.createElement('input');
         inputAutor.type = 'text';
         inputAutor.placeholder = 'Seu nome';
         inputAutor.required = true;
-        
+
         const textareaComentario = document.createElement('textarea');
         textareaComentario.placeholder = 'Seu comentário';
         textareaComentario.required = true;
         textareaComentario.rows = 3;
-        
+
         const botaoComentar = document.createElement('button');
         botaoComentar.type = 'submit';
         botaoComentar.textContent = 'Comentar';
-        
+
         formComentario.appendChild(inputAutor);
         formComentario.appendChild(textareaComentario);
         formComentario.appendChild(botaoComentar);
-        
+
         formComentario.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (inputAutor.value && textareaComentario.value) {
@@ -212,7 +267,7 @@ async function exibirComentarios(postagemId: number, articleElement: HTMLElement
                 }
             }
         });
-        
+
         comentariosContainer.appendChild(formComentario);
         articleElement.appendChild(comentariosContainer);
     } catch (error) {
@@ -229,7 +284,7 @@ async function adicionarComentario(postagemId: number, autor: string, texto: str
         },
         body: JSON.stringify({ autor, texto })
     });
-    
+
     if (!response.ok) {
         throw new Error('Falha ao adicionar comentário');
     }
@@ -238,7 +293,7 @@ async function adicionarComentario(postagemId: number, autor: string, texto: str
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     listarPostagens();
-    
+
     const botaoNovaPostagem = getById('botaoNovaPostagem');
     if (botaoNovaPostagem) {
         botaoNovaPostagem.addEventListener('click', incluirPostagem);

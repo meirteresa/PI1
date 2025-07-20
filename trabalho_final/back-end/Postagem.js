@@ -13,8 +13,8 @@ class Postagem {
     getComentarios() {
         return this.comentarios;
     }
-    adicionarComentario(autor, texto) {
-        this.comentarios.push(new Comentario(autor, texto, new Date()));
+    adicionarComentario(autor, texto, data) {
+        this.comentarios.push(new Comentario(autor, texto, data !== null && data !== void 0 ? data : new Date()));
     }
     getId() {
         return this.id;

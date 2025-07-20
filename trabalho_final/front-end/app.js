@@ -23,6 +23,7 @@ function listarPostagens() {
                 postagensElement.innerHTML = '';
                 postagens.forEach(postagem => {
                     const article = document.createElement('article');
+                    article.style.position = 'relative';
                     // Cria elementos da postagem
                     const titulo = document.createElement('h2');
                     titulo.textContent = postagem.titulo;
@@ -57,6 +58,48 @@ function listarPostagens() {
                             comentariosContainer.remove();
                         }
                     });
+                    // ========== MENU KEBAB ========== questão 3
+                    const menuContainer = document.createElement('div');
+                    menuContainer.className = 'kebab-menu-container';
+                    const botaoMenu = document.createElement('button');
+                    botaoMenu.className = 'kebab-button';
+                    botaoMenu.textContent = '⋮';
+                    const menuDropdown = document.createElement('div');
+                    menuDropdown.className = 'kebab-dropdown';
+                    const botaoExcluir = document.createElement('button');
+                    botaoExcluir.textContent = 'Excluir';
+                    botaoExcluir.addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
+                        const confirmar = window.confirm('Tem certeza que deseja excluir esta postagem?');
+                        if (confirmar) {
+                            try {
+                                const response = yield fetch(`${apiUrl}/${postagem.id}`, {
+                                    method: 'DELETE'
+                                });
+                                if (response.ok) {
+                                    listarPostagens(); // Recarrega a lista
+                                }
+                                else {
+                                    const erro = yield response.json();
+                                    alert('Erro ao excluir: ' + erro.message);
+                                }
+                            }
+                            catch (error) {
+                                console.error('Erro ao excluir:', error);
+                            }
+                        }
+                    }));
+                    botaoMenu.addEventListener('click', () => {
+                        menuDropdown.style.display = menuDropdown.style.display === 'none' ? 'block' : 'none';
+                    });
+                    document.addEventListener('click', (e) => {
+                        if (!menuContainer.contains(e.target)) {
+                            menuDropdown.style.display = 'none';
+                        }
+                    });
+                    menuDropdown.appendChild(botaoExcluir);
+                    menuContainer.appendChild(botaoMenu);
+                    menuContainer.appendChild(menuDropdown);
+                    // ========== FIM MENU KEBAB ==========
                     // Adiciona elementos ao artigo
                     article.appendChild(titulo);
                     article.appendChild(conteudo);
@@ -64,6 +107,7 @@ function listarPostagens() {
                     article.appendChild(curtidas);
                     article.appendChild(botaoCurtir);
                     article.appendChild(botaoComentarios);
+                    article.appendChild(menuContainer);
                     postagensElement.appendChild(article);
                 });
             }
@@ -126,6 +170,8 @@ function exibirComentarios(postagemId, articleElement) {
         try {
             const response = yield fetch(`${apiUrl}/${postagemId}/comentarios`);
             const comentarios = yield response.json();
+            // Ordena por data decrescente (mais recente primeiro) - questao 4
+            comentarios.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
             const comentariosContainer = document.createElement('div');
             comentariosContainer.className = 'comentarios';
             const tituloComentarios = document.createElement('h3');

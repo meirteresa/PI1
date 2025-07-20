@@ -19,8 +19,8 @@ export class Postagem {
         return this.comentarios;
     }
 
-    public adicionarComentario(autor: string, texto: string): void {
-        this.comentarios.push(new Comentario(autor, texto, new Date()));
+    public adicionarComentario(autor: string, texto: string, data?: Date): void {
+        this.comentarios.push(new Comentario(autor, texto, data ?? new Date()));
     }
 
     public getId(): number {
