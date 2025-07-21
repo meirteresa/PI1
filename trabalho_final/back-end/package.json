@@ -9,7 +9,7 @@
     "@types/node": "^24.0.15"
   },
   "scripts": {
-  "build": "tsc",
-  "start": "node dist/app.js"
-}
+    "build": "tsc",
+    "start": "node dist/app.js"
+  }
 }
