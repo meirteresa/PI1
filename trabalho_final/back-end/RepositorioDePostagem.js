@@ -20,9 +20,12 @@ class RepositorioDePostagens {
                 const dados = fs_1.default.readFileSync(this.arquivoDados, 'utf-8');
                 const dadosParseados = JSON.parse(dados);
                 this.postagens = dadosParseados.postagens.map((p) => {
-                    const postagem = new Postagem_1.Postagem(p.id, p.titulo, p.conteudo, new Date(p.data), p.curtidas);
+                    const postagem = new Postagem_1.Postagem(p.id, p.titulo, p.conteudo, new Date(p.data), p.curtidas, p.reacoes || {});
                     p.comentarios.forEach((c) => {
                         postagem.adicionarComentario(c.autor, c.texto, new Date(c.data));
+                    });
+                    p.denuncias.forEach((c) => {
+                        postagem.adicionarDenuncia(c.autor, c.texto, new Date(c.data));
                     });
                     return postagem;
                 });
@@ -43,6 +46,12 @@ class RepositorioDePostagens {
                     data: p.getData().toISOString(),
                     curtidas: p.getCurtidas(),
                     comentarios: p.getComentarios().map(c => ({
+                        autor: c.getAutor(),
+                        texto: c.getTexto(),
+                        data: c.getData().toISOString()
+                    })),
+                    reacoes: p.getReacoes(),
+                    denuncias: p.getDenuncias().map(c => ({
                         autor: c.getAutor(),
                         texto: c.getTexto(),
                         data: c.getData().toISOString()
@@ -82,6 +91,22 @@ class RepositorioDePostagens {
             return true;
         }
         return false;
+    }
+    adicionarDenuncia(id, autor, texto) {
+        const postagem = this.consultar(id);
+        if (!postagem)
+            return false;
+        postagem.adicionarDenuncia(autor, texto);
+        this.salvarDados();
+        return true;
+    }
+    adicionarReacao(id, emoji) {
+        const postagem = this.consultar(id);
+        if (!postagem)
+            return false;
+        postagem.reagir(emoji);
+        this.salvarDados();
+        return true;
     }
     consultar(id) {
         return this.postagens.find(postagem => postagem.getId() === id);
