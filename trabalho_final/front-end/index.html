@@ -6,61 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social IFPI</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Estilos específicos para comentários */
-        .comentarios-container {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #f5f5f5;
-            border-radius: 5px;
-            display: none; /* Inicialmente oculto */
-        }
-        
-        .comentario {
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: white;
-            border-radius: 3px;
-            border-left: 3px solid #4CAF50;
-        }
-        
-        .comentario strong {
-            color: #333;
-        }
-        
-        .comentario small {
-            color: #666;
-            font-size: 0.8em;
-            display: block;
-            margin-top: 5px;
-        }
-        
-        .form-comentario {
-            margin-top: 15px;
-        }
-        
-        .form-comentario input,
-        .form-comentario textarea {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        
-        .form-comentario textarea {
-            min-height: 80px;
-        }
-        
-        .botao-comentario {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -93,27 +39,6 @@
             </section>
 
             <section id="postagens">
-                <!-- As postagens serão inseridas aqui dinamicamente -->
-                <!-- Estrutura de exemplo que será clonada pelo JavaScript -->
-                <article class="postagem-template" style="display: none;">
-                    <h2 class="post-titulo"></h2>
-                    <p class="post-conteudo"></p>
-                    <footer>
-                        <span class="post-data"></span>
-                        <span class="post-curtidas"></span>
-                        <button class="botao-curtir">Curtir</button>
-                        <button class="botao-comentar">Comentar</button>
-                    </footer>
-                    <div class="comentarios-container">
-                        <h3>Comentários</h3>
-                        <div class="lista-comentarios"></div>
-                        <form class="form-comentario">
-                            <input type="text" placeholder="Seu nome" required>
-                            <textarea placeholder="Seu comentário" required></textarea>
-                            <button type="submit" class="botao-comentario">Enviar Comentário</button>
-                        </form>
-                    </div>
-                </article>
             </section>
         </main>
         <footer>
