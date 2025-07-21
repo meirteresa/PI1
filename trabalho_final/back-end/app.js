@@ -20,6 +20,8 @@ const PATH = '/socialifpi/postagem';
 const PATH_ID = PATH + '/:id';
 const PATH_CURTIR = PATH_ID + '/curtir';
 const PATH_COMENTAR = PATH_ID + '/comentar';
+const PATH_REAGIR = PATH_ID + '/reagir';
+const PATH_DENUNCIAR = PATH_ID + '/denunciar';
 app.post(PATH_COMENTAR, (req, res) => {
     const id = parseInt(req.params.id);
     const { autor, texto } = req.body;
@@ -40,6 +42,26 @@ app.get(PATH_ID + '/comentarios', (req, res) => {
     }
     res.json(postagem.getComentarios());
 });
+//Denunciar + denuncias
+app.post(PATH_DENUNCIAR, (req, res) => {
+    const id = parseInt(req.params.id);
+    const { autor, texto } = req.body;
+    const sucesso = repositorio.adicionarDenuncia(id, autor, texto);
+    if (!sucesso) {
+        res.status(404).json({ message: 'Postagem não encontrada' });
+        return;
+    }
+    res.status(200).json({ message: 'Denúncia adicionada com sucesso' });
+});
+app.get(PATH_ID + '/denuncias', (req, res) => {
+    const id = parseInt(req.params.id);
+    const postagem = repositorio.consultar(id);
+    if (!postagem) {
+        res.status(404).json({ message: 'Postagem não encontrada' });
+        return;
+    }
+    res.json(postagem.getDenuncias());
+});
 // Endpoint para listar todas as postagens
 app.get(PATH, (req, res) => {
     const postagens = repositorio.listar();
@@ -57,8 +79,8 @@ app.get(PATH_ID, (req, res) => {
 });
 // Endpoint para incluir uma nova postagem
 app.post(PATH, (req, res) => {
-    const { titulo, conteudo, data, curtidas } = req.body;
-    const novaPostagem = new Postagem_1.Postagem(0, titulo, conteudo, new Date(data), curtidas || 0);
+    const { titulo, conteudo, data, curtidas, reacoes } = req.body;
+    const novaPostagem = new Postagem_1.Postagem(0, titulo, conteudo, new Date(data), curtidas || 0, reacoes || { Risos: 0, Surpresa: 0, Raiva: 0, Choro: 0 });
     const postagemIncluida = repositorio.incluir(novaPostagem);
     res.status(201).json(postagemIncluida);
 });
@@ -93,6 +115,22 @@ app.post(PATH_CURTIR, (req, res) => {
         return;
     }
     res.json({ message: 'Postagem curtida com sucesso', curtidas });
+});
+//Endpoint para reagir a uma postagem pelo ID
+app.post(PATH_REAGIR, (req, res) => {
+    const id = parseInt(req.params.id);
+    const { emoji } = req.body;
+    if (!emoji) {
+        res.status(400).json({ message: 'Emoji não informado' });
+        return;
+    }
+    const sucesso = repositorio.adicionarReacao(id, emoji);
+    if (!sucesso) {
+        res.status(404).json({ message: 'Postagem não encontrada' });
+        return;
+    }
+    const postagemAtualizada = repositorio.consultar(id);
+    res.json({ message: 'Reação adicionada com sucesso', reacoes: postagemAtualizada === null || postagemAtualizada === void 0 ? void 0 : postagemAtualizada.getReacoes() });
 });
 // Inicializar o servidor na porta 3000
 const PORT = 3000;
