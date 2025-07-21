@@ -10,6 +10,12 @@ interface Comentario {
     data: string;
 }
 
+interface Denuncia {
+    autor: string;
+    texto: string;
+    data: string;
+}
+
 interface Postagem {
     id: number;
     titulo: string;
@@ -17,6 +23,15 @@ interface Postagem {
     data: string;
     curtidas: number;
     comentarios?: Comentario[];
+    reacoes?: { [emoji: string]: number };
+    denuncias?: Denuncia[];
+}
+
+enum Reacao {
+    risos = "Risos",
+    surpresa = "Surpresa",
+    raiva = "Raiva",
+    choro = "Choro"
 }
 
 // Função para listar todas as postagens
@@ -43,9 +58,52 @@ async function listarPostagens() {
                 data.className = 'data';
                 data.textContent = new Date(postagem.data).toLocaleDateString();
 
+                // Cria um container horizontal
+                const infoContainer = document.createElement('div');
+                infoContainer.className = 'info-postagem'
+
+                // CURTIDAS
                 const curtidas = document.createElement('p');
                 curtidas.textContent = `Curtidas: ${postagem.curtidas}`;
                 curtidas.style.fontWeight = 'bold';
+                curtidas.style.margin = '0';
+
+                // REAÇÕES
+                const reacoes = postagem.reacoes || {};
+
+                const reacoesP = document.createElement('p');
+                reacoesP.className = 'reacoes';
+                reacoesP.style.fontWeight = 'bold';
+                reacoesP.style.margin = '0';
+
+                // Emojis mapeados
+                const emojiMap: { [key in Reacao]: string } = {
+                    [Reacao.risos]: "😄",
+                    [Reacao.surpresa]: "😮",
+                    [Reacao.raiva]: "😡",
+                    [Reacao.choro]: "😢"
+                };
+
+                (Object.keys(Reacao) as (keyof typeof Reacao)[]).forEach((key) => {
+                    const tipo = Reacao[key];
+                    const emoji = emojiMap[tipo];
+
+                    const span = document.createElement('span');
+                    span.style.marginRight = '10px';
+                    span.style.cursor = 'pointer';
+                    span.textContent = `${emoji} ${reacoes[tipo] ?? 0}`;
+
+                    span.addEventListener('click', () => {
+                        reagirPostagem(postagem.id, tipo, reacoesP);
+                    });
+
+                    reacoesP.appendChild(span);
+                });
+
+                // Adiciona ao container horizontal
+                infoContainer.appendChild(curtidas);
+                infoContainer.appendChild(reacoesP);
+
 
                 const botaoCurtir = document.createElement('button');
                 botaoCurtir.textContent = 'Curtir';
@@ -73,6 +131,28 @@ async function listarPostagens() {
                     }
                 });
 
+                const botaoMostrarDenuncias = document.createElement('button');
+                botaoMostrarDenuncias.textContent = 'Mostrar Denúncias';
+                botaoMostrarDenuncias.style.marginLeft = '10px';
+
+                let denunciasVisiveis = false;
+                botaoMostrarDenuncias.addEventListener('click', () => {
+                    denunciasVisiveis = !denunciasVisiveis;
+                    botaoMostrarDenuncias.textContent = denunciasVisiveis
+                        ? 'Ocultar Denúncias'
+                        : 'Mostrar Denúncias';
+
+                    const denunciasContainer = article.querySelector('.denuncias');
+                    if (denunciasVisiveis) {
+                        if (!denunciasContainer) {
+                            exibirDenuncias(postagem.id, article);
+                        }
+                    } else if (denunciasContainer) {
+                        denunciasContainer.remove();
+                    }
+                });
+
+
                 // ========== MENU KEBAB ========== questão 3
                 const menuContainer = document.createElement('div');
                 menuContainer.className = 'kebab-menu-container';
@@ -80,14 +160,14 @@ async function listarPostagens() {
                 const botaoMenu = document.createElement('button');
                 botaoMenu.className = 'kebab-button';
                 botaoMenu.textContent = '⋮';
-
-                const menuDropdown = document.createElement('div');
+                
+                const menuDropdown = document.createElement('ul');
                 menuDropdown.className = 'kebab-dropdown';
+                menuDropdown.style.display = 'none';
 
-                const botaoExcluir = document.createElement('button');
-                botaoExcluir.textContent = 'Excluir';
-
-                botaoExcluir.addEventListener('click', async () => {
+                const itemExcluir = document.createElement('li');
+                itemExcluir.textContent = 'Excluir';
+                itemExcluir.addEventListener('click', async () => {
                     const confirmar = window.confirm('Tem certeza que deseja excluir esta postagem?');
                     if (confirmar) {
                         try {
@@ -107,6 +187,27 @@ async function listarPostagens() {
                     }
                 });
 
+                const itemDenunciar = document.createElement('li');
+                itemDenunciar.textContent = 'Denunciar';
+                itemDenunciar.addEventListener('click', () => denunciarPostagem(postagem.id, article));
+
+                const itemCompartilhar = document.createElement('li');
+                itemCompartilhar.innerHTML = 'Enviar <i class="fab fa-whatsapp" style="color: green; margin-left: 4px;"></i>';
+                itemCompartilhar.style.marginTop = '5px';
+
+
+                itemCompartilhar.addEventListener('click', () => {
+                    const url = `${window.location.origin}/postagem/${postagem.id}`;
+                    const mensagem = `Confira essa postagem: ${postagem.titulo}\n${url}`;
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+                    
+                    window.open(whatsappUrl, '_blank');
+                });
+
+                menuDropdown.appendChild(itemExcluir);
+                menuDropdown.appendChild(itemDenunciar);
+                menuDropdown.appendChild(itemCompartilhar);
+
                 botaoMenu.addEventListener('click', () => {
                     menuDropdown.style.display = menuDropdown.style.display === 'none' ? 'block' : 'none';
                 });
@@ -117,7 +218,6 @@ async function listarPostagens() {
                     }
                 });
 
-                menuDropdown.appendChild(botaoExcluir);
                 menuContainer.appendChild(botaoMenu);
                 menuContainer.appendChild(menuDropdown);
                 // ========== FIM MENU KEBAB ==========
@@ -127,9 +227,10 @@ async function listarPostagens() {
                 article.appendChild(titulo);
                 article.appendChild(conteudo);
                 article.appendChild(data);
-                article.appendChild(curtidas);
+                article.appendChild(infoContainer);
                 article.appendChild(botaoCurtir);
                 article.appendChild(botaoComentarios);
+                article.appendChild(botaoMostrarDenuncias);
                 article.appendChild(menuContainer);
 
                 postagensElement.appendChild(article);
@@ -150,6 +251,49 @@ async function curtirPostagem(id: number, curtidasElement: HTMLParagraphElement)
         curtidasElement.textContent = `Curtidas: ${result.curtidas}`;
     } catch (error) {
         console.error('Erro ao curtir postagem:', error);
+    }
+}
+
+// Função para reagir
+async function reagirPostagem(
+  id: number,
+  tipoReacao: string,
+  reacoesElement: HTMLElement
+) {
+    try {
+        const response = await fetch(`${apiUrl}/${id}/reagir`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ emoji: tipoReacao })
+        });
+
+        if (!response.ok) {
+            const textoErro = await response.text();
+            throw new Error(`Falha ao reagir à postagem: ${response.status} - ${textoErro}`);
+        }
+
+        const result = await response.json();
+
+        // Atualiza o elemento das reações no frontend
+        const reacoes = result.reacoes;
+
+        // Mapa para emojis — adapte conforme seus emojis visuais
+        const emojiMap: { [key: string]: string } = {
+        Risos: '😄',
+        Surpresa: '😮',
+        Raiva: '😡',
+        Choro: '😢'
+        };
+
+        // Monta o texto atualizado para o elemento
+        let texto = '';
+        for (const [chave, emoji] of Object.entries(emojiMap)) {
+        texto += `${emoji} ${reacoes[chave] || 0}  `;
+        }
+
+        reacoesElement.textContent = texto.trim();
+    } catch (error) {
+        console.error('Erro ao reagir à postagem:', error);
     }
 }
 
@@ -272,6 +416,134 @@ async function exibirComentarios(postagemId: number, articleElement: HTMLElement
         articleElement.appendChild(comentariosContainer);
     } catch (error) {
         console.error('Erro ao carregar comentários:', error);
+    }
+}
+
+async function exibirDenuncias(postagemId: number, articleElement: HTMLElement) {
+    try {
+        const response = await fetch(`${apiUrl}/${postagemId}/denuncias`);
+        const denuncias: Denuncia[] = await response.json();
+
+        // Ordena por data decrescente
+        denuncias.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+
+        const denunciasContainer = document.createElement('div');
+        denunciasContainer.className = 'denuncias';
+
+        const tituloDenuncias = document.createElement('h3');
+        tituloDenuncias.textContent = 'Denúncias';
+        denunciasContainer.appendChild(tituloDenuncias);
+
+        if (denuncias.length === 0) {
+            const semDenuncias = document.createElement('p');
+            semDenuncias.textContent = 'Nenhuma denúncia até o momento.';
+            denunciasContainer.appendChild(semDenuncias);
+        } else {
+            denuncias.forEach((denuncia) => {
+                const denunciaElement = document.createElement('div');
+                denunciaElement.className = 'comentario denuncia';
+
+                const autor = document.createElement('strong');
+                autor.textContent = denuncia.autor;
+
+                const texto = document.createElement('p');
+                texto.textContent = denuncia.texto || '(sem texto)'; // fallback visual
+
+                const data = document.createElement('small');
+                data.textContent = new Date(denuncia.data).toLocaleString();
+
+                denunciaElement.appendChild(autor);
+                denunciaElement.appendChild(texto);
+                denunciaElement.appendChild(data);
+                denunciasContainer.appendChild(denunciaElement);
+            });
+        }
+
+        articleElement.appendChild(denunciasContainer);
+    } catch (error) {
+        console.error('Erro ao carregar denúncias:', error);
+    }
+}
+
+
+async function denunciarPostagem(postagemId: number, articleElement: HTMLElement) {
+    // Evita criar múltiplas caixas
+    if (articleElement.querySelector('.form-denuncia-container')) return;
+
+    // Cria o container com fundo escuro (pode ser usado como modal também)
+    const container = document.createElement('div');
+    container.className = 'form-denuncia-container';
+
+    const formBox = document.createElement('div');
+    formBox.className = 'form-denuncia-box';
+
+    const titulo = document.createElement('h3');
+    titulo.textContent = 'Denunciar Postagem';
+    titulo.className = 'form-denuncia-titulo';
+
+    const botaoFechar = document.createElement('span');
+    botaoFechar.className = 'form-denuncia-fechar';
+    botaoFechar.textContent = '✖';
+    botaoFechar.title = 'Fechar';
+    botaoFechar.addEventListener('click', () => {
+        container.remove();
+    });
+
+    const form = document.createElement('form');
+    form.className = 'form-denuncia';
+
+    const inputAutor = document.createElement('input');
+    inputAutor.type = 'text';
+    inputAutor.placeholder = 'Seu nome';
+    inputAutor.className = 'input-denuncia';
+    inputAutor.required = true;
+
+    const textarea = document.createElement('textarea');
+    textarea.placeholder = 'Motivo da denúncia';
+    textarea.className = 'textarea-denuncia';
+    textarea.required = true;
+    textarea.rows = 4;
+
+    const botaoEnviar = document.createElement('button');
+    botaoEnviar.type = 'submit';
+    botaoEnviar.className = 'botao-enviar-denuncia';
+    botaoEnviar.textContent = 'Enviar';
+
+    form.appendChild(inputAutor);
+    form.appendChild(textarea);
+    form.appendChild(botaoEnviar);
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            await enviarDenuncia(postagemId, inputAutor.value, textarea.value);
+            alert('Denúncia enviada com sucesso!');
+            container.remove();
+        } catch (error) {
+            console.error('Erro ao enviar denúncia:', error);
+            alert('Erro ao enviar denúncia.');
+        }
+    });
+
+    formBox.appendChild(titulo);
+    formBox.appendChild(botaoFechar);
+    formBox.appendChild(form);
+    container.appendChild(formBox);
+    articleElement.appendChild(container);
+}
+
+
+async function enviarDenuncia(postagemId: number, autor: string, texto: string): Promise<void> {
+    const response = await fetch(`${apiUrl}/${postagemId}/denunciar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ autor, texto })
+    });
+
+    if (!response.ok) {
+        throw new Error('Falha ao enviar denúncia');
     }
 }
 
