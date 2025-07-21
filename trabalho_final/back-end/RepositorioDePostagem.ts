@@ -23,11 +23,16 @@ export class RepositorioDePostagens {
                         p.titulo,
                         p.conteudo,
                         new Date(p.data),
-                        p.curtidas
+                        p.curtidas,
+                        p.reacoes || {}
                     );
                     
                     p.comentarios.forEach((c: any) => {
                         postagem.adicionarComentario(c.autor, c.texto, new Date(c.data));
+                    });
+
+                    p.denuncias.forEach((c: any) => {
+                        postagem.adicionarDenuncia(c.autor, c.texto, new Date(c.data));
                     });
                     
                     return postagem;
@@ -50,6 +55,12 @@ export class RepositorioDePostagens {
                     data: p.getData().toISOString(),
                     curtidas: p.getCurtidas(),
                     comentarios: p.getComentarios().map(c => ({
+                        autor: c.getAutor(),
+                        texto: c.getTexto(),
+                        data: c.getData().toISOString()
+                    })),
+                    reacoes: p.getReacoes(),
+                    denuncias: p.getDenuncias().map(c => ({
                         autor: c.getAutor(),
                         texto: c.getTexto(),
                         data: c.getData().toISOString()
@@ -92,6 +103,23 @@ export class RepositorioDePostagens {
             return true;
         }
         return false;
+    }
+
+    public adicionarDenuncia(id: number, autor: string, texto: string): boolean {
+        const postagem = this.consultar(id);
+        if (!postagem) return false;
+        postagem.adicionarDenuncia(autor, texto);
+        this.salvarDados();
+        return true;
+    }
+
+    public adicionarReacao(id: number, emoji: string): boolean {
+        const postagem = this.consultar(id);
+        if (!postagem) return false;
+
+        postagem.reagir(emoji);
+        this.salvarDados();
+        return true;
     }
 
     public consultar(id: number): Postagem | undefined {
